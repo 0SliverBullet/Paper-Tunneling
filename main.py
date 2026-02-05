@@ -11,6 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.core.engine import CrawlerEngine
 from src.scrapers.icml import ICMLScraper
 from src.scrapers.neurips import NeurIPSScraper
+from src.scrapers.iclr import ICLRScraper
 
 
 def load_config(path="config.yaml"):
@@ -77,9 +78,12 @@ async def main():
 	if "neurips" in conferences:
 		neurips_scraper = NeurIPSScraper(config)
 		scrapers.append(neurips_scraper)
+	if "iclr" in conferences:
+		iclr_scraper = ICLRScraper(config)
+		scrapers.append(iclr_scraper)
 
 	if not scrapers:
-		raise ValueError("No valid conferences selected. Currently supported: icml")
+		raise ValueError("No valid conferences selected. Currently supported: icml, neurips, iclr")
     
 	# 3. 启动引擎
 	engine = CrawlerEngine(scrapers, config)

@@ -80,6 +80,7 @@ concurrency: 20
 
 - ICML (`icml`)
 - NeurIPS (`neurips`)
+- ICLR (`iclr`)
 
 > 说明：当前仅支持抓取 2023 年及以后发表的论文。
 
@@ -108,6 +109,24 @@ icml_quantum_qaoa_2023_2024.md
 ### 查看结果
 
 运行结束后，程序会在 results/ 目录下生成 Markdown 报告，例如 icml_quantum_papers.md。
+
+### 输出文件格式说明
+
+输出为 Markdown 报告，结构如下：
+
+1. 报告头部（全局信息）
+  - Generated on：生成时间
+  - Keywords：检索关键词（并集）
+  - Years：检索年份
+  - Conferences：检索会议
+
+2. 论文条目（按年份降序分组）
+  - 标题（带链接）
+  - Authors：作者列表
+  - Abstract：摘要
+
+3. 统计信息（Statistics）
+  - 每个会议与年份的扫描数量与命中数量
 
 ## 📝 License
 
