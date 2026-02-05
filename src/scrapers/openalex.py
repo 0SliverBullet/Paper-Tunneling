@@ -1,5 +1,6 @@
 import asyncio
 import random
+import json
 import aiohttp
 from typing import Dict, Any, List
 from bs4 import BeautifulSoup
@@ -77,7 +78,7 @@ class OpenAlexScraper(BaseScraper):
 
 		return {"abstract": abstract, "authors": authors}
 
-	async def _fetch_page(self, session: aiohttp.ClientSession, year: int, cursor: str) -> Dict[str, Any]:
+	async def _fetch_page(self, session: aiohttp.ClientSession, year: int, cursor: str, retries: int = 3) -> Dict[str, Any]:
 		base_url = "https://api.openalex.org/works"
 		params = {
 			"filter": f"primary_location.source.issn:{self.issn},publication_year:{year}",
@@ -85,9 +86,17 @@ class OpenAlexScraper(BaseScraper):
 			"select": "title,publication_year,primary_location,authorships,abstract_inverted_index",
 			"cursor": cursor,
 		}
-		async with session.get(base_url, params=params, timeout=self.config.get("timeout", 30)) as resp:
-			resp.raise_for_status()
-			return await resp.json()
+		for attempt in range(retries):
+			async with session.get(base_url, params=params, timeout=self.config.get("timeout", 30)) as resp:
+				resp.raise_for_status()
+				text = await resp.text()
+				try:
+					return json.loads(text)
+				except json.JSONDecodeError:
+					if attempt == retries - 1:
+						raise
+					await asyncio.sleep(1 + attempt)
+		return {}
 
 	async def _fetch_year(self, session: aiohttp.ClientSession, year: int) -> List[Dict[str, Any]]:
 		results: List[Dict[str, Any]] = []
