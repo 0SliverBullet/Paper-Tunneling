@@ -4,6 +4,15 @@
 
 它利用 `aiohttp` 和 `asyncio` 实现高并发爬取，支持关键词过滤（如 "Quantum", "QAOA", "GNN"），并将结果导出为 Markdown 格式，方便科研人员快速建立文献库。
 
+
+## ✨ Demo
+
+<p align="center">
+  <img src="assets/demo.gif" alt="Paper-Tunneling Running Demo" width="800">
+</p>
+
+
+
 ## 📂 目录结构
 
 ```text

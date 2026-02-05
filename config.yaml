@@ -1,8 +1,8 @@
 project_name: "Paper-Tunneling"
 
 # 搜索设置
-keywords: 
-	- "quantum"  # 支持列表，目前代码逻辑主要针对单个，但结构预留了扩展
+keywords:
+  - "quantum"  # 支持列表，目前代码逻辑主要针对单个，但结构预留了扩展
 
 # 目标会议设置
 years: [2023, 2024, 2025]
