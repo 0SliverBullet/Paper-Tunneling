@@ -1,6 +1,6 @@
 # Paper-Tunneling ⚡️
 
-**Paper-Tunneling** 是一个基于 Python 的异步高性能论文抓取工具，专为从 **ICML**, **NeurIPS**, **ICLR** 等顶级 AI 会议以及 **Nature Machine Intelligence** 等期刊中挖掘特定领域的论文而设计。
+**Paper-Tunneling** 是一个基于 Python 的异步高性能论文抓取工具，专为从 **ICML**, **NeurIPS**, **ICLR** 等顶级 AI 会议以及 Nature 系列期刊等来源中挖掘特定领域的论文而设计。
 
 它利用 `aiohttp` 和 `asyncio` 实现高并发爬取，支持关键词过滤（如 "Quantum", "QAOA", "GNN"），并将结果导出为 Markdown 格式，方便科研人员快速建立文献库。
 
@@ -69,6 +69,19 @@ keywords:
   - "quantum"
   - "optimization"
 
+# 期刊配置 (OpenAlex by ISSN)
+targets:
+  - name: "Nature Machine Intelligence"
+    issn: "2522-5839"
+  - name: "Nature Computational Science"
+    issn: "2662-8457"
+  - name: "npj Quantum Information"
+    issn: "2056-6387"
+  - name: "Physical Review Letters"
+    issn: "0031-9007"
+  - name: "Quantum"
+    issn: "2521-327X"
+
 # 目标会议/期刊年份
 years: [2023, 2024, 2025]
 
@@ -82,9 +95,15 @@ concurrency: 20
 - NeurIPS (`neurips`)
 - ICLR (`iclr`)
 - Nature Machine Intelligence (`nmi`, 期刊)
+- Nature Computational Science (`ncs`, 期刊)
+- npj Quantum Information (`npjqi`, 期刊)
+- Physical Review Letters (`prl`, 期刊)
+- Quantum (`quantum`, 期刊)
 
 > 说明：会议当前仅支持抓取 2023 年及以后发表的论文；
-> Nature Machine Intelligence 支持 2019 年及以后发表的论文。
+> Nature Machine Intelligence 支持 2019 年及以后发表的论文；
+> Nature Computational Science 支持 2021 年及以后发表的论文；
+> 其他期刊可通过 targets 配置 ISSN 扩展。
 
 ## 🚀 运行 (Usage)
 
@@ -141,13 +160,6 @@ icml_quantum_qaoa_2023_2024.md
 
 3. 统计信息（Statistics）
   - 每个会议/期刊与年份的扫描数量与命中数量
-
-## ✅ TODO
-
-- Nature Computational Science
-- npj Quantum Information
-- Physical Review Letters
-- Quantum
 
 ## 📝 License
 

@@ -12,7 +12,7 @@ from src.core.engine import CrawlerEngine
 from src.scrapers.icml import ICMLScraper
 from src.scrapers.neurips import NeurIPSScraper
 from src.scrapers.iclr import ICLRScraper
-from src.scrapers.nature_machine_intelligence import NatureMachineIntelligenceScraper
+from src.scrapers.openalex import OpenAlexScraper
 
 
 def load_config(path="config.yaml"):
@@ -90,16 +90,40 @@ async def main():
 		conferences = []
 	if conferences is None:
 		conferences = ["icml"]
-	conference_aliases = {
-		"natmachintell": "nmi",
-		"nature-machine-intelligence": "nmi",
-		"nature_machine_intelligence": "nmi",
-		"nmi": "nmi",
+	def _slug_name(text: str) -> str:
+		return "-".join(text.lower().split())
+
+	journal_aliases = {
+		"nmi": "nature-machine-intelligence",
+		"ncs": "nature-computational-science",
+		"npjqi": "npj-quantum-information",
+		"prl": "physical-review-letters",
+		"quantum": "quantum",
 	}
-	conferences = [conference_aliases.get(c, c) for c in conferences]
-	journals = [conference_aliases.get(j, j) for j in journals]
+
+	conferences = [c.lower() for c in conferences]
+	journals = [journal_aliases.get(j, j).lower() for j in journals]
 	config["conferences"] = conferences
 	config["journals"] = journals
+
+	targets = config.get("targets", [])
+	selected_targets = targets
+	if journals:
+		journal_set = set(journals)
+		selected_targets = []
+		for target in targets:
+			name = target.get("name", "")
+			issn = (target.get("issn", "") or "").lower()
+			slug = _slug_name(name)
+			if issn in journal_set or slug in journal_set:
+				selected_targets.append(target)
+				continue
+			alias = journal_aliases.get(journals[0], "") if journals else ""
+			if alias and slug == alias:
+				selected_targets.append(target)
+
+	if selected_targets:
+		config["journals"] = [_slug_name(t.get("name", "")) for t in selected_targets]
     
 	# 2. 初始化爬虫列表 (目前只有 ICML)
 	scrapers = []
@@ -113,12 +137,11 @@ async def main():
 	if "iclr" in conferences:
 		iclr_scraper = ICLRScraper(config)
 		scrapers.append(iclr_scraper)
-	if "nmi" in conferences or "nmi" in journals:
-		nmi_scraper = NatureMachineIntelligenceScraper(config)
-		scrapers.append(nmi_scraper)
+	for target in selected_targets:
+		scrapers.append(OpenAlexScraper(config, target))
 
 	if not scrapers:
-		raise ValueError("No valid conferences selected. Currently supported: icml, neurips, iclr, nmi")
+		raise ValueError("No valid conferences selected. Currently supported: icml, neurips, iclr, openalex targets")
     
 	# 3. 启动引擎
 	engine = CrawlerEngine(scrapers, config)
