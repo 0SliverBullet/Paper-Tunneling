@@ -12,6 +12,7 @@ from src.core.engine import CrawlerEngine
 from src.scrapers.icml import ICMLScraper
 from src.scrapers.neurips import NeurIPSScraper
 from src.scrapers.iclr import ICLRScraper
+from src.scrapers.nature_machine_intelligence import NatureMachineIntelligenceScraper
 
 
 def load_config(path="config.yaml"):
@@ -26,6 +27,8 @@ def parse_args():
 	parser.add_argument("--keywords", nargs="+", help="关键词列表，例如: quantum qaoa")
 	parser.add_argument("--years", nargs="+", type=int, help="年份列表，例如: 2023 2024 2025")
 	parser.add_argument("--conferences", nargs="+", help="会议列表，例如: icml")
+	parser.add_argument("--journals", nargs="+", help="期刊列表，例如: nmi")
+	parser.add_argument("--concurrency", type=int, help="并发请求数，例如: 5")
 	return parser.parse_args()
 
 
@@ -63,11 +66,34 @@ async def main():
 	if args.conferences:
 		config["conferences"] = [c.lower() for c in args.conferences]
 		cli_override = True
+	if args.journals:
+		config["journals"] = [j.lower() for j in args.journals]
+		cli_override = True
+	if args.concurrency is not None:
+		config["concurrency"] = args.concurrency
+		cli_override = True
 
 	if cli_override:
 		config["output_filename"] = build_output_filename(config)
 
-	conferences = config.get("conferences") or ["icml"]
+	conferences = config.get("conferences")
+	journals = config.get("journals") or []
+
+	# 仅指定期刊时，不默认启用会议
+	if conferences is None and journals:
+		conferences = []
+	if conferences is None:
+		conferences = ["icml"]
+	conference_aliases = {
+		"natmachintell": "nmi",
+		"nature-machine-intelligence": "nmi",
+		"nature_machine_intelligence": "nmi",
+		"nmi": "nmi",
+	}
+	conferences = [conference_aliases.get(c, c) for c in conferences]
+	journals = [conference_aliases.get(j, j) for j in journals]
+	config["conferences"] = conferences
+	config["journals"] = journals
     
 	# 2. 初始化爬虫列表 (目前只有 ICML)
 	scrapers = []
@@ -81,9 +107,12 @@ async def main():
 	if "iclr" in conferences:
 		iclr_scraper = ICLRScraper(config)
 		scrapers.append(iclr_scraper)
+	if "nmi" in conferences or "nmi" in journals:
+		nmi_scraper = NatureMachineIntelligenceScraper(config)
+		scrapers.append(nmi_scraper)
 
 	if not scrapers:
-		raise ValueError("No valid conferences selected. Currently supported: icml, neurips, iclr")
+		raise ValueError("No valid conferences selected. Currently supported: icml, neurips, iclr, nmi")
     
 	# 3. 启动引擎
 	engine = CrawlerEngine(scrapers, config)

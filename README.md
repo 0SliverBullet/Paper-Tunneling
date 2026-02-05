@@ -81,8 +81,11 @@ concurrency: 20
 - ICML (`icml`)
 - NeurIPS (`neurips`)
 - ICLR (`iclr`)
+- Nature Machine Intelligence (`nmi`, 期刊)
 
 > 说明：当前仅支持抓取 2023 年及以后发表的论文。
+
+> Nature Machine Intelligence 使用年份列表自动抓取，无需额外配置。
 
 ## 🚀 运行 (Usage)
 
@@ -98,6 +101,18 @@ python main.py
 
 ```bash
 python main.py --keywords quantum qaoa --years 2023 2024 --conferences icml
+```
+
+期刊使用 `--journals` 参数，例如：
+
+```bash
+python main.py --keywords quantum --years 2023 --journals nmi
+```
+
+你也可以通过命令行覆盖并发数：
+
+```bash
+python main.py --keywords quantum --years 2023 --journals nmi --concurrency 1
 ```
 
 当使用命令行覆盖时，输出文件名会自动包含输入的关键词、年份和会议名称，例如：
@@ -127,6 +142,14 @@ icml_quantum_qaoa_2023_2024.md
 
 3. 统计信息（Statistics）
   - 每个会议与年份的扫描数量与命中数量
+
+## ✅ TODO
+
+- Nature Machine Intelligence
+- Nature Computational Science
+- npj Quantum Information
+- Physical Review Letters
+- Quantum
 
 ## 📝 License
 
