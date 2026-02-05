@@ -1,0 +1,16 @@
+project_name: "Paper-Tunneling"
+
+# 搜索设置
+keywords: 
+	- "quantum"  # 支持列表，目前代码逻辑主要针对单个，但结构预留了扩展
+
+# 目标会议设置
+years: [2023, 2024, 2025]
+
+# 爬虫行为设置
+concurrency: 20  # 并发请求数，太大容易被封
+timeout: 30
+
+# 输出设置
+output_dir: "results"
+output_filename: "icml_quantum_papers.md"
