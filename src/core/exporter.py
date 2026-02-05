@@ -31,7 +31,11 @@ class MarkdownExporter:
 			items.sort(key=lambda x: x['title'])
 			folder = os.path.join(self.output_dir, keywords_folder, _slug(conf), str(year))
 			os.makedirs(folder, exist_ok=True)
-			filepath = os.path.join(folder, self.filename)
+			filename = self.filename
+			if len(self.years) != 1:
+				year_token = str(year) if year else "all"
+				filename = f"{_slug(conf)}_{keywords_folder}_{year_token}.md"
+			filepath = os.path.join(folder, filename)
 
 			with open(filepath, "w", encoding="utf-8") as f:
 				f.write("# Paper-Tunneling Report\n")

@@ -107,10 +107,9 @@ async def main():
 	config["journals"] = journals
 
 	targets = config.get("targets", [])
-	selected_targets = targets
+	selected_targets = []
 	if journals:
 		journal_set = set(journals)
-		selected_targets = []
 		for target in targets:
 			name = target.get("name", "")
 			issn = (target.get("issn", "") or "").lower()
