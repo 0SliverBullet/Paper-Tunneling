@@ -76,12 +76,33 @@ years: [2023, 2024, 2025]
 concurrency: 20
 ```
 
+### 会议列表（当前支持）
+
+- ICML (`icml`)
+- NeurIPS (`neurips`)
+
+> 说明：当前仅支持抓取 2023 年及以后发表的论文。
+
 ## 🚀 运行 (Usage)
 
 环境配置完成后，直接运行 main.py：
 
 ```bash
 python main.py
+```
+
+### 通过命令行覆盖配置
+
+你可以在不改 config.yaml 的情况下，直接用命令行传入关键词、年份、会议名称：
+
+```bash
+python main.py --keywords quantum qaoa --years 2023 2024 --conferences icml
+```
+
+当使用命令行覆盖时，输出文件名会自动包含输入的关键词、年份和会议名称，例如：
+
+```text
+icml_quantum_qaoa_2023_2024.md
 ```
 
 ### 查看结果

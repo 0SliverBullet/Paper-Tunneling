@@ -1,5 +1,6 @@
 import asyncio
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 from .base import BaseScraper
 
 
@@ -34,9 +35,46 @@ class ICMLScraper(BaseScraper):
 
 			# 2. 提取作者
 			authors_text = "Unknown Authors"
-			author_div = soup.find(class_="authors") or soup.find(class_="author-block")
-			if author_div:
-				authors_text = author_div.get_text(" ", strip=True)
+
+			# 2.1 优先从 citation_author 元数据获取
+			meta_authors = [
+				m.get("content", "").strip()
+				for m in soup.find_all("meta", attrs={"name": "citation_author"})
+				if m.get("content")
+			]
+			if meta_authors:
+				authors_text = ", ".join(meta_authors)
+			else:
+				# 2.2 常见作者区域 class 名
+				author_div = (
+					soup.find(class_="authors")
+					or soup.find(class_="author-block")
+					or soup.find(class_="authors-list")
+					or soup.find(class_="author")
+				)
+				if author_div:
+					authors_text = author_div.get_text(" ", strip=True)
+				else:
+					# 2.3 兜底：从 JSON-LD 中提取 author
+					for script in soup.find_all("script", attrs={"type": "application/ld+json"}):
+						try:
+							import json
+							data = json.loads(script.string or "{}")
+							authors = data.get("author")
+							if isinstance(authors, list):
+								names = []
+								for a in authors:
+									name = a.get("name") if isinstance(a, dict) else None
+									if name:
+										names.append(name)
+								if names:
+									authors_text = ", ".join(names)
+									break
+							elif isinstance(authors, dict) and authors.get("name"):
+								authors_text = authors.get("name")
+								break
+						except Exception:
+							continue
 
 			# 3. 更新统计 (Scanned)
 			self.stats[year]["scanned"] += 1
@@ -86,8 +124,12 @@ class ICMLScraper(BaseScraper):
 				tasks.append(self.parse_paper_details(session, full_url, title, year, semaphore))
 
 		print(f"[ICML {year}] Found {len(tasks)} papers. Fetching details...")
-		results = await asyncio.gather(*tasks)
-		return [r for r in results if r]
+		results = []
+		for coro in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc=f"ICML {year}"):
+			res = await coro
+			if res:
+				results.append(res)
+		return results
 
 	async def run(self, session):
 		# 创建信号量限制并发

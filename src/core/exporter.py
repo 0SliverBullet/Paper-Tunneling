@@ -7,6 +7,8 @@ class MarkdownExporter:
 		self.output_dir = config.get('output_dir', 'results')
 		self.filename = config.get('output_filename', 'papers.md')
 		self.keywords = config.get('keywords', [])
+		self.years = config.get('years', [])
+		self.conferences = config.get('conferences', [])
         
 		if not os.path.exists(self.output_dir):
 			os.makedirs(self.output_dir)
@@ -21,6 +23,11 @@ class MarkdownExporter:
 			f.write(f"# Paper-Tunneling Report\n")
 			f.write(f"**Generated on:** {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
 			f.write(f"**Keywords:** {', '.join(self.keywords)}\n\n")
+			if self.years:
+				f.write(f"**Years:** {', '.join(str(y) for y in self.years)}\n")
+			if self.conferences:
+				f.write(f"**Conferences:** {', '.join(self.conferences)}\n")
+			f.write("\n")
             
 			current_year = None
 			for paper in papers:
