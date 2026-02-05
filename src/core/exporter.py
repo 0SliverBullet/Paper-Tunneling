@@ -15,7 +15,7 @@ class MarkdownExporter:
 
 	def save(self, papers, stats):
 		def _slug(text: str) -> str:
-			return "_".join(text.lower().split()) if text else "all"
+			return "-".join(text.lower().split()) if text else "all"
 
 		keywords_folder = _slug(" ".join(self.keywords))
 
@@ -27,7 +27,7 @@ class MarkdownExporter:
 
 		for (conf, year), items in grouped.items():
 			items.sort(key=lambda x: x['title'])
-			folder = os.path.join(self.output_dir, keywords_folder, conf.lower(), str(year))
+			folder = os.path.join(self.output_dir, keywords_folder, _slug(conf), str(year))
 			os.makedirs(folder, exist_ok=True)
 			filepath = os.path.join(folder, self.filename)
 
@@ -36,7 +36,7 @@ class MarkdownExporter:
 				f.write(f"**Generated on:** {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
 				f.write(f"**Keywords:** {', '.join(self.keywords)}\n")
 				f.write(f"**Years:** {year}\n")
-				f.write(f"**Conferences:** {conf.lower()}\n\n")
+				f.write(f"**Conferences:** {_slug(conf)}\n\n")
 
 				f.write(f"## {conf} {year}\n\n")
 				for paper in items:

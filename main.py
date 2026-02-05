@@ -37,8 +37,14 @@ def _sanitize_token(token: str) -> str:
 	return "".join(ch for ch in token.lower() if ch in allowed)
 
 
+
 def build_output_filename(config):
-	confs = config.get("conferences") or ["papers"]
+	confs = config.get("conferences") or []
+	journals = config.get("journals") or []
+	if not confs and journals:
+		confs = journals
+	if not confs:
+		confs = ["papers"]
 	keywords = config.get("keywords") or ["all"]
 	years = config.get("years") or ["all"]
 
