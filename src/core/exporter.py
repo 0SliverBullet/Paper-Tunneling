@@ -9,6 +9,8 @@ class MarkdownExporter:
 		self.keywords = config.get('keywords', [])
 		self.years = config.get('years', [])
 		self.conferences = config.get('conferences', [])
+		self.journals = config.get('journals', [])
+		self.journals_only = bool(self.journals) and not self.conferences
         
 		if not os.path.exists(self.output_dir):
 			os.makedirs(self.output_dir)
@@ -36,7 +38,8 @@ class MarkdownExporter:
 				f.write(f"**Generated on:** {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
 				f.write(f"**Keywords:** {', '.join(self.keywords)}\n")
 				f.write(f"**Years:** {year}\n")
-				f.write(f"**Conferences:** {_slug(conf)}\n\n")
+				label = "Journals" if self.journals_only else "Conferences"
+				f.write(f"**{label}:** {_slug(conf)}\n\n")
 
 				f.write(f"## {conf} {year}\n\n")
 				for paper in items:
