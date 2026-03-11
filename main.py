@@ -13,6 +13,7 @@ from src.scrapers.icml import ICMLScraper
 from src.scrapers.neurips import NeurIPSScraper
 from src.scrapers.iclr import ICLRScraper
 from src.scrapers.openalex import OpenAlexScraper
+from src.scrapers.arxiv import ArxivScraper
 
 
 def load_config(path="config.yaml"):
@@ -99,6 +100,7 @@ async def main():
 		"npjqi": "npj-quantum-information",
 		"prl": "physical-review-letters",
 		"quantum": "quantum",
+		"arxiv": "arxiv",
 	}
 
 	conferences = [c.lower() for c in conferences]
@@ -137,10 +139,19 @@ async def main():
 		iclr_scraper = ICLRScraper(config)
 		scrapers.append(iclr_scraper)
 	for target in selected_targets:
-		scrapers.append(OpenAlexScraper(config, target))
+		if target.get("name", "").lower() == "arxiv" or target.get("issn", "").lower() == "arxiv":
+			scrapers.append(ArxivScraper(config))
+		else:
+			scrapers.append(OpenAlexScraper(config, target))
+            
+	# Fallback for arxiv if specified directly in conferences or journals but not in targets
+	if "arxiv" in conferences or "arxiv" in journals:
+		# check if already added
+		if not any(isinstance(s, ArxivScraper) for s in scrapers):
+			scrapers.append(ArxivScraper(config))
 
 	if not scrapers:
-		raise ValueError("No valid conferences selected. Currently supported: icml, neurips, iclr, openalex targets")
+		raise ValueError("No valid conferences selected. Currently supported: icml, neurips, iclr, arxiv, openalex targets")
     
 	# 3. 启动引擎
 	engine = CrawlerEngine(scrapers, config)
