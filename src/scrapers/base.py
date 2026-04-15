@@ -22,11 +22,13 @@ class BaseScraper:
 			return None
 
 	def is_match(self, title, abstract):
-		"""检查标题或摘要是否命中任意关键词"""
+		"""检查标题或摘要是否命中全部关键词"""
+		if not self.keyword_patterns:
+			return False
 		for pattern in self.keyword_patterns:
-			if pattern.search(title) or pattern.search(abstract):
-				return True
-		return False
+			if not (pattern.search(title) or pattern.search(abstract)):
+				return False
+		return True
 
 	async def run(self, session):
 		"""子类必须实现此方法"""
